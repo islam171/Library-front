@@ -1,0 +1,14 @@
+.Layout{
+    min-height: 100vh;
+}
+
+.main{
+    flex: auto;
+    padding: 10px;
+}
+
+.wrapper{
+    max-width: 1280px;
+    margin: 0 auto;
+    height: 100vh;
+}

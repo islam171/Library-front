@@ -1,0 +1,32 @@
+.Header{
+    display: flex;
+    justify-content: space-between;
+    height: 60px;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.Header ul{
+    display: inline-flex;
+    gap: 10px;
+}
+
+.button{
+    padding: 5px 10px;
+    background-color: #945AE3;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    border-radius: 15px;
+    text-decoration: none;
+}
+
+
+.title{
+    color: #fff;
+    text-decoration: none;
+    font-size: 36px;
+    font-weight: 600;
+}
