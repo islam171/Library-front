@@ -8,6 +8,8 @@ body {
   background-color: #232426;
   color: white;
   box-sizing: border-box;
+
+  --primary-color: #945AE3;
 }
 
 html{
@@ -29,4 +31,6 @@ button{
   transition: 0.4s;
 }
 
-
+li{
+  list-style: none;
+}

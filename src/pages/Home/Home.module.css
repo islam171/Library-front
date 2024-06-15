@@ -16,12 +16,30 @@
 }
 
 .books{
-    display: flex;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 30px 10px;
+}
+
+@media screen and (max-width: 1024px) {
+    .books{
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .books{
+        grid-template-columns: 1fr 1fr;
+    }
 }
 
 .nav{
     margin-top: 30px;
     display: flex;
     gap: 10px;
+}
+
+.genres{
+    display: flex;
+    align-items: center;
 }

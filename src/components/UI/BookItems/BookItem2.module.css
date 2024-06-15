@@ -1,11 +1,12 @@
 .BookItem2{
     width: 200px;
-    padding: 10px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 10px;
     background-color: #1D1E22;
     border-radius: 20px;
+    position: relative;
 }
 .top{
     position: relative;
@@ -67,4 +68,12 @@
 .bottom button:hover{
     border: 2px solid #945AE3;
     background-color: #303538;
+}
+
+.like{
+    position: absolute;
+    top: 10px;
+    right: 5px;
+    width: 10px;
+    height: 10px;
 }

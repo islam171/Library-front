@@ -1,0 +1,56 @@
+.Genres {
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
+  padding: 0 10px;
+
+  &::-webkit-scrollbar{
+    width: 0;
+    height: 0;
+  }
+
+  &__list {
+    display: flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    flex-wrap: nowrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  &__item {
+    background-color: #f9f9f9;
+    padding: 13px 30px;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    -webkit-transition: background-color 0.1s ease-in-out;
+    transition: background-color 0.1s ease-in-out;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    font-size: 1rem;
+    white-space: nowrap;
+    border:  5px solid var(--primary-color);
+    color: var(--primary-color);
+
+    @media screen and (max-width: 768px) {
+      padding: 5px 10px;
+      line-height: 100%;
+    }
+
+    &:hover {
+      background-color: #f4f4f4;
+    }
+    &:active {
+      background-color: #f4f4f4;
+    }
+    &.active {
+      background-color: var(--primary-color);
+      color: white;
+    }
+  }
+}

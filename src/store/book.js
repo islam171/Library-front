@@ -1,191 +1,101 @@
-import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import axios from "axios";
+import { createSlice } from '@reduxjs/toolkit'
+import { genresData, booksData } from './booksData'
 
-export const getBooks = createAsyncThunk(
-    'book/getBook',
-    async function (_, {rejectWithValue}) {
-        try {
-            // debugger
-            const res = await axios.get('http://127.0.0.1:8000/api/book')
-            return res.data.data
-        } catch (e) {
-            return rejectWithValue(e.message)
-        }
+const textSimilarity = (text, string) => {
+    return string.toLowerCase().includes(text)
+}
+const filterByGenre = (array, genre) => {
+    if (!genre) {
+        return array
     }
-)
+    return array.filter(item => item.genre === genre)
+}
 
-export const addMyBook = createAsyncThunk(
-    'book/addMyBook',
-    async function ({token, book}, {rejectWithValue}) {
-        try {
-            await axios.post(
-                'http://127.0.0.1:8000/api/user/book',
-                {bookId: book.id},
-                {headers: {'Authorization': token}})
-            return book
-        } catch (e) {
-            return rejectWithValue(e.response.data)
-        }
+const filterByPrice = (array, priceMax, priceMin) => {
+    if (!(priceMax || priceMin) || priceMax === '0') {
+        return array
     }
-)
+    return array.filter(item => item.price >= priceMin && item.price <= priceMax)
+}
 
-export const getMyBook = createAsyncThunk(
-    'book/getMyBook',
-    async function (token, {rejectWithValue}) {
-        try {
-            // debugger
-            const {data} = await axios.get(
-                'http://127.0.0.1:8000/api/user/book',
-                {headers: {'Authorization': token}})
-            return data
-        } catch (e) {
-            return rejectWithValue(e.message)
-        }
+const filterByColor = (array, color) => {
+    if (!color) {
+        return array
     }
-)
 
+    return array.filter(item => item.color === color)
+}
 
-export const deleteMyBook = createAsyncThunk(
-    'book/deleteMyBook',
-    async function ({token, id}, {rejectWithValue}) {
-        try {
-            // debugger
-            await axios.delete(
-                `http://127.0.0.1:8000/api/user/book/${id}`,
-                {headers: {'Authorization': token}})
-
-            return id
-        } catch (e) {
-            return rejectWithValue(e.message)
+const sortShoes = (array, sortValue, order) => {
+    const sortByName = (a, b) => {
+        if (a.name > b.name) {
+            return order === 'desc' ? -1 : 1
         }
+        if (a.name < b.name) {
+            return order === 'desc' ? 1 : -1
+        }
+        return 0
     }
-)
 
-export const deleteBook = createAsyncThunk(
-    'book/deleteBook',
-        async function ({id,token}, rejectWithValue){
-            try{
-                await axios.delete(
-                    `http://127.0.0.1:8000/api/admin/book/${id}`,
-                    {headers: {'Authorization': token}})
-                return id;
-            }catch (e) {
-                return rejectWithValue(e.message)
-            }
+    const sortByPrice = (a, b) => {
+        if (a.price > b.price) {
+            return order === 'desc' ? -1 : 1
         }
-)
-
-export const createBook = createAsyncThunk(
-    'book/createBook',
-        async function ({token, data}, rejectWithValue){
-            try{
-                console.log(data)
-                const res = await axios.post(
-                    `http://127.0.0.1:8000/api/admin/book`,
-                    data,
-                    {headers: {'Authorization': token}})
-                return res.data.data
-            }catch (e) {
-                return rejectWithValue(e.message)
-            }
+        if (a.price < b.price) {
+            return order === 'desc' ? 1 : -1
         }
-)
+        return 0
+    }
 
-const bookSlice = createSlice({
-    name: "book",
+    if (sortValue === 'price') {
+        return array.sort((a, b) => sortByPrice(a, b))
+    }
+    return array.sort((a, b) => sortByName(a, b))
+}
+
+const pagination = (array, page, limit) => {
+    let start = page * limit - limit
+    let end = start + limit
+
+    return array.slice(start, end)
+}
+
+const book = createSlice({
+    name: 'book',
     initialState: {
-        books: [],
-        myBooks: [],
-        loading: false,
-        error: null
+        books: booksData,
+        genres: genresData,
+        error: null,
+        status: null,
+        totalCount: 0,
     },
     reducers: {
-        setMyBooks(state, action) {
-            state.myBooks = [...state.myBooks, action.payload]
-        }
+        getShoes(state, action) {
+            let dataFilter
+            dataFilter = booksData.filter(item =>
+                textSimilarity(action.payload.search, item.name)
+            )
+            dataFilter = filterByGenre(dataFilter, action.payload.genre)
+            dataFilter = filterByPrice(
+                dataFilter,
+                action.payload.priceMax,
+                action.payload.priceMin
+            )
+            dataFilter = filterByColor(dataFilter, action.payload.color)
+            dataFilter = sortShoes(
+                dataFilter,
+                action.payload.sort,
+                action.payload.order
+            )
+            state.totalCount = dataFilter.length
+            dataFilter = pagination(
+                dataFilter,
+                action.payload.page,
+                action.payload.limit
+            )
+            state.books = dataFilter
+        },
     },
-    extraReducers: {
-        [addMyBook.pending]: (state, action) => {
-            state.status = 'loading';
-            state.error = null;
-        },
-        [addMyBook.fulfilled]: (state, action) => {
-            state.status = 'resolved';
-            state.error = null;
-            state.myBooks = [...state.myBooks, action.payload]
-        },
-        [addMyBook.rejected]: (state, action) => {
-            state.status = 'rejected';
-            state.error = action.payload;
-        },
-        [getMyBook.pending]: (state, action) => {
-            state.status = 'loading';
-            state.error = null
-        },
-        [getMyBook.fulfilled]: (state, action) => {
-            state.status = 'resolved';
-            state.error = null;
-            // console.log(action.payload)
-            state.myBooks = [...state.myBooks, ...action.payload]
-        },
-        [getMyBook.rejected]: (state, action) => {
-            state.status = 'rejected';
-            state.error = action.payload;
-        },
-        [deleteMyBook.pending]: (state, action) => {
-            state.status = 'loading';
-            state.error = null
-        },
-        [deleteMyBook.fulfilled]: (state, action) => {
-            state.status = 'resolved';
-            state.error = null;
-            state.myBooks = state.myBooks.filter(item =>  item.id !== action.payload)
-        },
-        [deleteMyBook.rejected]: (state, action) => {
-            state.status = 'rejected';
-            state.error = action.payload;
-        },
-        [getBooks.pending]: (state, action) => {
-            state.status = 'loading';
-            state.error = null
-        },
-        [getBooks.fulfilled]: (state, action) => {
-            state.status = 'resolved';
-            state.error = null;
-            state.books = action.payload
-        },
-        [getBooks.rejected]: (state, action) => {
-            state.status = 'rejected';
-            state.error = action.payload;
-        },
-        [deleteBook.pending]: (state, action) => {
-            state.status = 'loading';
-            state.error = null
-        },
-        [deleteBook.fulfilled]: (state, action) => {
-            state.status = 'resolved';
-            state.error = null;
-            state.books = state.books.filter(item => item.id !== action.payload)
-        },
-        [deleteBook.rejected]: (state, action) => {
-            state.status = 'rejected';
-            state.error = action.payload;
-        },
-        [createBook.pending]: (state, action) => {
-            state.status = 'loading';
-            state.error = null
-        },
-        [createBook.fulfilled]: (state, action) => {
-            state.status = 'resolved';
-            state.error = null;
-            state.books = [...state.books, action.payload]
-        },
-        [createBook.rejected]: (state, action) => {
-            state.status = 'rejected';
-            state.error = action.payload;
-        },
-    }
 })
-
-// export const {setMyBooks} = bookSlice.actions
-export default bookSlice.reducer
+export const { getShoes } = book.actions
+export default book.reducer
